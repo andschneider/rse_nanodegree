@@ -23,4 +23,4 @@ $ source devel/setup.bash
 $ rosrun simple_arm simple_mover
 ```
 
-![alt text](images/sim_example.png)
+![alt text](/src/simple_arm/images/sim_example.png)
