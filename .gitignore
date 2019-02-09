@@ -2,4 +2,4 @@ build/
 
 \.idea/
 
-catkin_ws/devel/
+catkin_ws/*
