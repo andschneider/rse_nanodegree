@@ -1,7 +1,9 @@
 #include <cv_bridge/cv_bridge.h>
 #include <image_transport/image_transport.h>
+#include <math.h>
 #include <ros/ros.h>
 #include <sensor_msgs/image_encodings.h>
+#include <deque>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "ball_chaser/DriveToTarget.h"
@@ -18,6 +20,9 @@ cv::Mat cv_hsv;
 cv::Mat cv_grey;
 cv::Mat thresh_img;
 cv::Mat cv_bgr;
+
+// create a queue of the ball centers for drawing a trail
+std::deque<cv::Point> center_trail;
 
 // This function calls the command_robot service to drive the robot in the
 // specified direction
@@ -56,14 +61,28 @@ int calculate_ball_location(cv_bridge::CvImagePtr input_img) {
 
   // find center of contour
   int center_x = 0;
+  int center_y = 0;
   if (contours.size() > 0) {
     cv::Rect br = cv::boundingRect(contours[0]);
     center_x = br.x + br.width / 2;
-    int center_y = br.y + br.height / 2;
+    center_y = br.y + br.height / 2;
+
+    // add point to queue
+    cv::Point center_pt = cv::Point(center_x, center_y);
+    center_trail.push_front(center_pt);
+
     // draw center of contour on image
-    cv::circle(contourOverlay, cv::Point(center_x, center_y), 5,
-               CV_RGB(255, 0, 0), -1);
+    cv::circle(contourOverlay, center_pt, 5, CV_RGB(255, 0, 0), -1);
   }
+
+  // draw trail of ball center
+  int trail_length = 50;
+  for (int i = 1; i < center_trail.size(); i++) {
+    int thickness = static_cast<int>(sqrt(trail_length / (i + 1)) * 2);
+    cv::line(contourOverlay, center_trail[i - 1], center_trail[i],
+             CV_RGB(125, 125, 125), thickness);
+  }
+  if (center_trail.size() == trail_length) center_trail.pop_back();
 
   // display image with contour and center, if there
   cv::imshow(CONTOUR_WINDOW, contourOverlay);
