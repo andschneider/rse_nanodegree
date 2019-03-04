@@ -11,10 +11,12 @@
 // Define a global client that can request services
 ros::ServiceClient client;
 
-static const std::string RAW_WINDOW = "raw window";
-static const std::string CONVERTED_WINDOW = "converted window";
-static const std::string THRESHOLD_WINDOW = "threshold window";
-static const std::string CONTOUR_WINDOW = "contour window";
+static const std::string RAW_WINDOW = "color selection";
+static const std::string TRACKING_WINDOW = "tracking window";
+
+// default thresholding values for selecting white
+cv::Scalar min_thresh = cv::Scalar(0, 0, 250);
+cv::Scalar max_thresh = cv::Scalar(5, 5, 255);
 
 cv::Mat cv_hsv;
 cv::Mat cv_grey;
@@ -34,19 +36,53 @@ void drive_robot(float lin_x, float ang_z) {
   if (!client.call(srv)) ROS_ERROR("failed to call service");
 }
 
+// calculates a range of values to threshold by, clamped at 0 and 180 or 255
+std::tuple<int, int> get_min_max(int selected, int upper_bound = 255) {
+  int lower = selected - 10;
+  int upper = selected + 10;
+
+  if (lower < 0) lower = 0;
+
+  if (upper > upper_bound) upper = upper_bound;
+
+  return std::make_tuple(lower, upper);
+}
+
+// processes click data to threshold image by
+void onClick(int event, int x, int y, int, void*) {
+  if (event != cv::EVENT_LBUTTONDOWN) return;
+
+  // get hsv values at selected pixel
+  cv::Vec3b selected_color = cv_hsv.at<cv::Vec3b>(cv::Point(x, y));
+  /* std::cout << selected_color << std::endl; */
+
+  // get upper and lower bounds for thresholding
+  // hue has a max of 180
+  int lower_hue, upper_hue, lower_saturation, upper_saturation, lower_value,
+      upper_value;
+  std::tie(lower_hue, upper_hue) = get_min_max(selected_color[0], 180);
+  std::tie(lower_saturation, upper_saturation) = get_min_max(selected_color[1]);
+  std::tie(lower_value, upper_saturation) = get_min_max(selected_color[2]);
+
+  // threshold image
+  min_thresh = cv::Scalar(lower_hue, lower_saturation, lower_value);
+  max_thresh = cv::Scalar(upper_hue, upper_saturation, upper_value);
+  inRange(cv_hsv, min_thresh, max_thresh, thresh_img);
+}
+
 int calculate_ball_location(cv_bridge::CvImagePtr input_img) {
   // convert input to OpenCV image
   cv_bgr = input_img->image;
   // convert to hsv
   cv::cvtColor(cv_bgr, cv_hsv, cv::COLOR_BGR2HSV);
-  // threshold based on a given range
-  cv::Scalar thresh_min = cv::Scalar(0, 0, 250);
-  cv::Scalar thresh_max = cv::Scalar(6, 6, 255);
-  inRange(cv_hsv, thresh_min, thresh_max, thresh_img);
 
-  /* cv::imshow(RAW_WINDOW, cv_ptr->image); */
-  /* cv::imshow(CONVERTED_WINDOW, cv_hsv); */
-  /* cv::imshow(THRESHOLD_WINDOW, thresh_img); */
+  // default threshold to white, gets overwritten by click data
+  inRange(cv_hsv, min_thresh, max_thresh, thresh_img);
+
+  // display the raw image for color selection
+  cv::imshow(RAW_WINDOW, cv_bgr);
+  // threshold based on mouse click
+  cv::setMouseCallback(RAW_WINDOW, onClick, 0);
 
   // find edge of ball
   std::vector<std::vector<cv::Point> > contours;
@@ -85,7 +121,7 @@ int calculate_ball_location(cv_bridge::CvImagePtr input_img) {
   if (center_trail.size() == trail_length) center_trail.pop_back();
 
   // display image with contour and center, if there
-  cv::imshow(CONTOUR_WINDOW, contourOverlay);
+  cv::imshow(TRACKING_WINDOW, contourOverlay);
 
   // figure out location of ball in the image and set driving direction
   enum drive_direction { STOP = -1, RIGHT = 1, CENTER, LEFT };

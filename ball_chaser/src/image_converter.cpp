@@ -10,28 +10,46 @@ static const std::string CONVERTED_WINDOW = "converted window";
 static const std::string THRESHOLD_WINDOW = "threshold window";
 static const std::string CONTOUR_WINDOW = "contour window";
 
-const int slider_max = 255;
-const int hue_max = 180;
-int slider_lower_hue = 150;
-int slider_upper_hue = 180;
-int slider_lower_saturation = 250;
-int slider_lower_value = 250;
-int slider_upper_saturation = 255;
-int slider_upper_value = 255;
+// default thresholding values for selecting white
+cv::Scalar min_thresh = cv::Scalar(0, 0, 250);
+cv::Scalar max_thresh = cv::Scalar(5, 5, 255);
 
 cv::Mat cv_hsv;
 cv::Mat cv_grey;
 cv::Mat thresh_img;
 cv::Mat cv_bgr;
 
-void threshold_img(int, void*) {
-  // threshold based on a given range
-  cv::Scalar thresh_min =
-      cv::Scalar(slider_lower_hue, slider_lower_saturation, slider_lower_value);
-  cv::Scalar thresh_max =
-      cv::Scalar(slider_upper_hue, slider_upper_saturation, slider_upper_value);
-  /* std::cout << slider_lower_value << slider_upper_value << std::endl; */
-  inRange(cv_hsv, thresh_min, thresh_max, thresh_img);
+// calculates a range of values to threshold by, clamped at 0 and 180 or 255
+std::tuple<int, int> get_min_max(int selected, int upper_bound = 255) {
+  int lower = selected - 10;
+  int upper = selected + 10;
+
+  if (lower < 0) lower = 0;
+
+  if (upper > upper_bound) upper = upper_bound;
+
+  return std::make_tuple(lower, upper);
+}
+
+void onClick(int event, int x, int y, int, void*) {
+  if (event != cv::EVENT_LBUTTONDOWN) return;
+
+  // get hsv values at selected pixel
+  cv::Vec3b selected_color = cv_hsv.at<cv::Vec3b>(cv::Point(x, y));
+  /* std::cout << selected_color << std::endl; */
+
+  // get upper and lower bounds for thresholding
+  // hue has a max of 180
+  int lower_hue, upper_hue, lower_saturation, upper_saturation, lower_value,
+      upper_value;
+  std::tie(lower_hue, upper_hue) = get_min_max(selected_color[0], 180);
+  std::tie(lower_saturation, upper_saturation) = get_min_max(selected_color[1]);
+  std::tie(lower_value, upper_saturation) = get_min_max(selected_color[2]);
+
+  // threshold image
+  min_thresh = cv::Scalar(lower_hue, lower_saturation, lower_value);
+  max_thresh = cv::Scalar(upper_hue, upper_saturation, upper_value);
+  inRange(cv_hsv, min_thresh, max_thresh, thresh_img);
 }
 
 class ImageConverter {
@@ -67,23 +85,11 @@ class ImageConverter {
     cv::cvtColor(cv_bgr, cv_hsv, cv::COLOR_BGR2HSV);
 
     cv::imshow(RAW_WINDOW, cv_ptr->image);
-    
-    // create sliders for selecting HSV threshold values
-    cv::createTrackbar("lower hue", RAW_WINDOW, &slider_lower_hue, hue_max,
-                       threshold_img);
-    cv::createTrackbar("upper hue", RAW_WINDOW, &slider_upper_hue, hue_max,
-                       threshold_img);
 
-    cv::createTrackbar("lower saturation", RAW_WINDOW, &slider_lower_saturation,
-                       slider_max, threshold_img);
-    cv::createTrackbar("upper saturation", RAW_WINDOW, &slider_upper_saturation,
-                       slider_max, threshold_img);
-
-    cv::createTrackbar("lower value", RAW_WINDOW, &slider_lower_value,
-                       slider_max, threshold_img);
-    cv::createTrackbar("upper value", RAW_WINDOW, &slider_upper_value,
-                       slider_max, threshold_img);
-    threshold_img(0, 0);
+    // default thresholding to white
+    inRange(cv_hsv, min_thresh, max_thresh, thresh_img);
+    // threshold based on mouse click
+    cv::setMouseCallback(RAW_WINDOW, onClick, 0);
 
     cv::imshow(CONVERTED_WINDOW, cv_hsv);
     cv::imshow(THRESHOLD_WINDOW, thresh_img);
@@ -130,9 +136,6 @@ class ImageConverter {
     /* std::cout << driving << std::endl; */
 
     cv::waitKey(3);
-
-    // Output modified video stream
-    /* image_pub_.publish(cv_ptr->toImageMsg()); */
   }
 };
 
