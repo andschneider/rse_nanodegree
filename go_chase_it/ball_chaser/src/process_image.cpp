@@ -7,11 +7,11 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "ball_chaser/DriveToTarget.h"
+#include "std_msgs/ColorRGBA.h"
 
 // Define a global client that can request services
 ros::ServiceClient client;
 
-static const std::string RAW_WINDOW = "color selection";
 static const std::string TRACKING_WINDOW = "tracking window";
 
 // default thresholding values for selecting white
@@ -48,28 +48,6 @@ std::tuple<int, int> get_min_max(int selected, int upper_bound = 255) {
   return std::make_tuple(lower, upper);
 }
 
-// processes click data to threshold image by
-void onClick(int event, int x, int y, int, void*) {
-  if (event != cv::EVENT_LBUTTONDOWN) return;
-
-  // get hsv values at selected pixel
-  cv::Vec3b selected_color = cv_hsv.at<cv::Vec3b>(cv::Point(x, y));
-  /* std::cout << selected_color << std::endl; */
-
-  // get upper and lower bounds for thresholding
-  // hue has a max of 180
-  int lower_hue, upper_hue, lower_saturation, upper_saturation, lower_value,
-      upper_value;
-  std::tie(lower_hue, upper_hue) = get_min_max(selected_color[0], 180);
-  std::tie(lower_saturation, upper_saturation) = get_min_max(selected_color[1]);
-  std::tie(lower_value, upper_saturation) = get_min_max(selected_color[2]);
-
-  // threshold image
-  min_thresh = cv::Scalar(lower_hue, lower_saturation, lower_value);
-  max_thresh = cv::Scalar(upper_hue, upper_saturation, upper_value);
-  inRange(cv_hsv, min_thresh, max_thresh, thresh_img);
-}
-
 int calculate_ball_location(cv_bridge::CvImagePtr input_img) {
   // convert input to OpenCV image
   cv_bgr = input_img->image;
@@ -78,11 +56,6 @@ int calculate_ball_location(cv_bridge::CvImagePtr input_img) {
 
   // default threshold to white, gets overwritten by click data
   inRange(cv_hsv, min_thresh, max_thresh, thresh_img);
-
-  // display the raw image for color selection
-  cv::imshow(RAW_WINDOW, cv_bgr);
-  // threshold based on mouse click
-  cv::setMouseCallback(RAW_WINDOW, onClick, 0);
 
   // find edge of ball
   std::vector<std::vector<cv::Point> > contours;
@@ -143,6 +116,24 @@ int calculate_ball_location(cv_bridge::CvImagePtr input_img) {
   return driving;
 }
 
+// gets a selected color and overwrites the threshold image
+void select_ball_to_chase(const std_msgs::ColorRGBA& msg) {
+  ROS_INFO(" ******* color selection recieved ******* %1.2f, %1.2f, %1.2f",
+           msg.r, msg.g, msg.b);
+  // get upper and lower bounds for thresholding
+  // hue has a max of 180
+  int lower_hue, upper_hue, lower_saturation, upper_saturation, lower_value,
+      upper_value;
+  std::tie(lower_hue, upper_hue) = get_min_max(msg.r, 180);
+  std::tie(lower_saturation, upper_saturation) = get_min_max(msg.g);
+  std::tie(lower_value, upper_value) = get_min_max(msg.b);
+
+  // threshold image
+  min_thresh = cv::Scalar(lower_hue, lower_saturation, lower_value);
+  max_thresh = cv::Scalar(upper_hue, upper_saturation, upper_value);
+  inRange(cv_hsv, min_thresh, max_thresh, thresh_img);
+}
+
 // This callback function continuously executes and reads the image data
 void process_image_callback(const sensor_msgs::ImageConstPtr& msg) {
   cv_bridge::CvImagePtr cv_ptr;
@@ -181,6 +172,10 @@ int main(int argc, char** argv) {
   image_transport::ImageTransport it(nh);
   image_transport::Subscriber sub =
       it.subscribe("/camera/rgb/image_raw", 10, process_image_callback);
+
+  // subscribe to selected color
+  ros::Subscriber selected_color_sub =
+      nh.subscribe("ball_chaser/selected_color", 10, select_ball_to_chase);
 
   // Handle ROS communication events
   ros::spin();

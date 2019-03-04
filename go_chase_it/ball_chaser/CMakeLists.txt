@@ -38,3 +38,8 @@ add_dependencies(drive_bot ball_chaser_generate_messages_cpp)
 add_executable(process_image src/process_image.cpp)
 target_link_libraries(process_image ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(process_image ball_chaser_generate_messages_cpp)
+
+
+add_executable(select_ball_color src/select_ball_color.cpp)
+target_link_libraries(select_ball_color ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+add_dependencies(select_ball_color ball_chaser_generate_messages_cpp)
