@@ -1,7 +1,0 @@
-<launch>
-
- <!-- The opencv node -->
-  <node name="image_converter" type="image_converter" pkg="ball_chaser" output="screen">
-  </node>
-
-</launch>
