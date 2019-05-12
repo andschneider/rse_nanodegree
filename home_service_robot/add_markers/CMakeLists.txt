@@ -9,6 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
 )
 
+catkin_package()
+
 include_directories(${catkin_INCLUDE_DIRS})
 
 add_executable(add_markers src/add_markers.cpp)

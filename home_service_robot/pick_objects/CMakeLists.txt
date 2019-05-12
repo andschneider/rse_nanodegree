@@ -10,6 +10,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
 )
 
+catkin_package()
+
 include_directories(include ${catkin_INCLUDE_DIRS})
 
 add_executable(pick_objects src/pick_objects.cpp)

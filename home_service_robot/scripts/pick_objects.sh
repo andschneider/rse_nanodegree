@@ -9,5 +9,5 @@ sleep 5
 xterm -e "roslaunch turtlebot_interactions/turtlebot_rviz_launchers/launch/view_navigation.launch" &
 sleep 5
 
-xterm -e "~/rse_nd/catkin_ws/build/pick_objects/pick_objects"
+xterm -e "rosrun pick_objects pick_objects"
 
