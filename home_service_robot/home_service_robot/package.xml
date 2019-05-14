@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>home_service_robot</name>
+  <version>0.0.0</version>
+  <description>The home_service_robot package</description>
+
+  <maintainer email="andrew@todo.todo">andrew</maintainer>
+
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export>
+  </export>
+
+</package>
