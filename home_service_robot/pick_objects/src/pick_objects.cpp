@@ -23,7 +23,8 @@ int main(int argc, char** argv) {
   move_base_msgs::MoveBaseGoal pickUp;
   pickUp.target_pose.header.frame_id = "map";
   pickUp.target_pose.header.stamp = ros::Time::now();
-  pickUp.target_pose.pose.position.x = 1.0;
+  pickUp.target_pose.pose.position.x = -2.0;
+  pickUp.target_pose.pose.position.y = 2.0;
   pickUp.target_pose.pose.orientation.w = 1.0;
 
   // Send the goal position and orientation for the robot to reach
@@ -34,19 +35,19 @@ int main(int argc, char** argv) {
   ac.waitForResult();
 
   // Check if the robot reached pick up location
-  if (ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+  if (ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
     ROS_INFO("Made it to the pick up location!!!!");
-  else
+    // sleep for five seconds
+    ros::Duration(5.0).sleep();
+  } else
     ROS_INFO("Did not make it to the pick up location for some reason");
-
-  // sleep for five seconds
-  ros::Duration(5.0).sleep();
 
   // drop off location
   move_base_msgs::MoveBaseGoal dropOff;
   dropOff.target_pose.header.frame_id = "map";
   dropOff.target_pose.header.stamp = ros::Time::now();
-  dropOff.target_pose.pose.position.x = -3.0;
+  dropOff.target_pose.pose.position.x = 2.0;
+  dropOff.target_pose.pose.position.y = 2.0;
   dropOff.target_pose.pose.orientation.w = 1.0;
 
   // Send the goal position and orientation for the robot to reach
@@ -57,9 +58,11 @@ int main(int argc, char** argv) {
   ac.waitForResult();
 
   // Check if the robot reached drop off location
-  if (ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+  if (ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
     ROS_INFO("Made it to the drop off location!!!!");
-  else
+    // sleep for five seconds
+    ros::Duration(5.0).sleep();
+  } else
     ROS_INFO("Did not make it to the drop off location for some reason");
 
   return 0;

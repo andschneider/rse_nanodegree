@@ -64,11 +64,9 @@ void moveMarker(const nav_msgs::Odometry::ConstPtr& msg) {
     ROS_INFO("Dropping off the item!");
     sleep(5);
     markerStatus = DROPPED;
-  } else {
-    ROS_INFO("asdfasd");
   }
 
-  ROS_INFO("[%d]", markerStatus);
+  /* ROS_INFO("[%d]", markerStatus); */
   // Determine where the marker should be placed
   switch (markerStatus) {
     case AVAILABLE:
