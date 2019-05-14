@@ -23,8 +23,8 @@ int main(int argc, char** argv) {
   move_base_msgs::MoveBaseGoal pickUp;
   pickUp.target_pose.header.frame_id = "map";
   pickUp.target_pose.header.stamp = ros::Time::now();
-  pickUp.target_pose.pose.position.x = -2.0;
-  pickUp.target_pose.pose.position.y = 2.0;
+  pickUp.target_pose.pose.position.x = -1.5;
+  pickUp.target_pose.pose.position.y = 2.5;
   pickUp.target_pose.pose.orientation.w = 1.0;
 
   // Send the goal position and orientation for the robot to reach
@@ -46,8 +46,8 @@ int main(int argc, char** argv) {
   move_base_msgs::MoveBaseGoal dropOff;
   dropOff.target_pose.header.frame_id = "map";
   dropOff.target_pose.header.stamp = ros::Time::now();
-  dropOff.target_pose.pose.position.x = 2.0;
-  dropOff.target_pose.pose.position.y = 2.0;
+  dropOff.target_pose.pose.position.x = 2.6;
+  dropOff.target_pose.pose.position.y = 0.0;
   dropOff.target_pose.pose.orientation.w = 1.0;
 
   // Send the goal position and orientation for the robot to reach

@@ -3,13 +3,13 @@
 #include <visualization_msgs/Marker.h>
 
 // Pick up location
-double pickUpX = -2.0;
-double pickUpY = 2.0;
+double pickUpX = -1.7;
+double pickUpY = 2.5;
 double pickUpZ = 0.0;
 
 // Drop off location
-double dropOffX = 2.0;
-double dropOffY = 2.0;
+double dropOffX = 2.5;
+double dropOffY = 0.0;
 double dropOffZ = 0.0;
 
 ros::Publisher marker_pub;
@@ -35,9 +35,9 @@ void moveMarker(const nav_msgs::Odometry::ConstPtr& msg) {
   marker.type = visualization_msgs::Marker::CUBE;
 
   // Set the scale of the marker -- 1x1x1 here means 1m on a side
-  marker.scale.x = 0.8;
-  marker.scale.y = 0.8;
-  marker.scale.z = 0.8;
+  marker.scale.x = 0.3;
+  marker.scale.y = 0.3;
+  marker.scale.z = 0.3;
 
   // Set the color -- be sure to set alpha to something non-zero!
   marker.color.r = 0.0f;
@@ -49,13 +49,14 @@ void moveMarker(const nav_msgs::Odometry::ConstPtr& msg) {
   double x_pos = msg->pose.pose.position.x;
   double y_pos = msg->pose.pose.position.y;
   double z_pos = msg->pose.pose.position.z;
+  ROS_INFO("x: [%f] | y: [%f] | z: [%f]", x_pos, y_pos, z_pos);
 
   /* marker_status markerStatus; */
   /* if (x_pos == pickUpX && y_pos == pickUpY) { */
   /* else if (x_pos == dropOffX && y_pos == dropOffY) { */
   // TODO probably won't need these ranges
-  if (pickUpX * 1.15 < x_pos && x_pos < pickUpX * 0.85 &&
-      y_pos > pickUpY * 0.85 && y_pos < pickUpY * 1.15) {
+  if (-2.4 * 1.15 < x_pos && x_pos < -2.4 * 0.85 &&
+      y_pos > -1.7 * 1.15 && y_pos < -1.7 * 0.85) {
     ROS_INFO("Picking up the item!");
     sleep(5);
     markerStatus = PICKEDUP;
