@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
   dropOff.target_pose.header.frame_id = "map";
   dropOff.target_pose.header.stamp = ros::Time::now();
   dropOff.target_pose.pose.position.x = 2.6;
-  dropOff.target_pose.pose.position.y = 0.0;
+  dropOff.target_pose.pose.position.y = 0.7;
   dropOff.target_pose.pose.orientation.w = 1.0;
 
   // Send the goal position and orientation for the robot to reach

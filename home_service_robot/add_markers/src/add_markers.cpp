@@ -9,7 +9,7 @@ double pickUpZ = 0.0;
 
 // Drop off location
 double dropOffX = 2.5;
-double dropOffY = 0.0;
+double dropOffY = 1.0;
 double dropOffZ = 0.0;
 
 ros::Publisher marker_pub;
@@ -49,7 +49,7 @@ void moveMarker(const nav_msgs::Odometry::ConstPtr& msg) {
   double x_pos = msg->pose.pose.position.x;
   double y_pos = msg->pose.pose.position.y;
   double z_pos = msg->pose.pose.position.z;
-  ROS_INFO("x: [%f] | y: [%f] | z: [%f]", x_pos, y_pos, z_pos);
+  /* ROS_INFO("x: [%f] | y: [%f] | z: [%f]", x_pos, y_pos, z_pos); */
 
   /* marker_status markerStatus; */
   /* if (x_pos == pickUpX && y_pos == pickUpY) { */
@@ -60,8 +60,8 @@ void moveMarker(const nav_msgs::Odometry::ConstPtr& msg) {
     ROS_INFO("Picking up the item!");
     sleep(5);
     markerStatus = PICKEDUP;
-  } else if (dropOffX * 0.85 < x_pos && x_pos < dropOffX * 1.15 &&
-             y_pos > dropOffY * 0.85 && y_pos < dropOffY * 1.15) {
+  } else if (-0.7 * 1.15 < x_pos && x_pos < -0.7 * 0.85 &&
+             y_pos > 2.5 * 0.85 && y_pos < 2.5 * 1.15) {
     ROS_INFO("Dropping off the item!");
     sleep(5);
     markerStatus = DROPPED;
