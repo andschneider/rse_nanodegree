@@ -1,22 +1,31 @@
+#include <math.h>
 #include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
 #include <visualization_msgs/Marker.h>
 
 // Pick up location
-double pickUpX = -1.7;
-double pickUpY = 2.5;
-double pickUpZ = 0.0;
+double pick_up_x = -1.7;
+double pick_up_y = 2.5;
+double pick_up_z = 0.0;
 
 // Drop off location
-double dropOffX = 2.5;
-double dropOffY = 1.0;
-double dropOffZ = 0.0;
+double drop_off_x = 2.5;
+double drop_off_y = 1.0;
+double drop_off_z = 0.0;
 
 ros::Publisher marker_pub;
 
 // Set up marker status
 enum marker_status { AVAILABLE, PICKEDUP, DROPPED };
 marker_status markerStatus;
+
+// Calculate the Euclidean distance between a desired point and the actual point
+double CalcDistance(double x_coord, double y_coord, double x_desired,
+                    double y_desired) {
+  double distance =
+      sqrt(pow(x_coord - x_desired, 2) + pow(y_coord - y_desired, 2));
+  return distance;
+}
 
 void moveMarker(const nav_msgs::Odometry::ConstPtr& msg) {
   // Create a marker
@@ -45,35 +54,37 @@ void moveMarker(const nav_msgs::Odometry::ConstPtr& msg) {
   marker.color.b = 0.0f;
   marker.color.a = 1.0;
 
-  // Location from odom sensor
+  // Location from odom sensor, which is from the coordinate system of the robot
   double x_pos = msg->pose.pose.position.x;
   double y_pos = msg->pose.pose.position.y;
   double z_pos = msg->pose.pose.position.z;
   /* ROS_INFO("x: [%f] | y: [%f] | z: [%f]", x_pos, y_pos, z_pos); */
 
-  /* marker_status markerStatus; */
-  /* if (x_pos == pickUpX && y_pos == pickUpY) { */
-  /* else if (x_pos == dropOffX && y_pos == dropOffY) { */
-  // TODO probably won't need these ranges
-  if (-2.4 * 1.15 < x_pos && x_pos < -2.4 * 0.85 &&
-      y_pos > -1.7 * 1.15 && y_pos < -1.7 * 0.85) {
+  // Calculate distance to pick up locations. The positions are seen from the
+  // robot's coordinate system so they have different locations than the marker
+  // locations
+  double pick_up_distance = CalcDistance(x_pos, y_pos, -2.4, -1.7);
+  double drop_off_distance = CalcDistance(x_pos, y_pos, -0.7, 2.5);
+  /* ROS_INFO("pick up distance: [%f] | drop off: [%f]", pick_up_distance,
+   * drop_off_distance); */
+  /* ROS_INFO("[%d]", markerStatus); */
+
+  if (pick_up_distance < 0.15) {
     ROS_INFO("Picking up the item!");
     sleep(5);
     markerStatus = PICKEDUP;
-  } else if (-0.7 * 1.15 < x_pos && x_pos < -0.7 * 0.85 &&
-             y_pos > 2.5 * 0.85 && y_pos < 2.5 * 1.15) {
+  } else if (drop_off_distance < 0.15) {
     ROS_INFO("Dropping off the item!");
     sleep(5);
     markerStatus = DROPPED;
   }
 
-  /* ROS_INFO("[%d]", markerStatus); */
   // Determine where the marker should be placed
   switch (markerStatus) {
     case AVAILABLE:
-      marker.pose.position.x = pickUpX;
-      marker.pose.position.y = pickUpY;
-      marker.pose.position.z = pickUpZ;
+      marker.pose.position.x = pick_up_x;
+      marker.pose.position.y = pick_up_y;
+      marker.pose.position.z = pick_up_z;
       marker.action = visualization_msgs::Marker::ADD;
       marker_pub.publish(marker);
       break;
@@ -82,9 +93,9 @@ void moveMarker(const nav_msgs::Odometry::ConstPtr& msg) {
       marker_pub.publish(marker);
       break;
     case DROPPED:
-      marker.pose.position.x = dropOffX;
-      marker.pose.position.y = dropOffY;
-      marker.pose.position.z = dropOffZ;
+      marker.pose.position.x = drop_off_x;
+      marker.pose.position.y = drop_off_y;
+      marker.pose.position.z = drop_off_z;
       marker.action = visualization_msgs::Marker::ADD;
       marker_pub.publish(marker);
       break;
