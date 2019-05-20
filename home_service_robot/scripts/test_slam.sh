@@ -9,7 +9,7 @@ sleep 5
 xterm -e "roslaunch turtlebot_gazebo gmapping_demo.launch" &
 sleep 5
 
-xterm -e "roslaunch turtlebot_interactions/turtlebot_rviz_launchers/launch/view_navigation.launch" &
+xterm -e "roslaunch home_service_robot view_navigation.launch" &
 sleep 5
 
 xterm -e "roslaunch turtlebot_teleop keyboard_teleop.launch"
