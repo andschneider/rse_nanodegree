@@ -22,7 +22,15 @@ However, in this project it was demonstrated by manually driving a robot around 
 
 ### Path Planning
 
-The path planning and navigation is done using the [turtlebot_gazebo package](http://wiki.ros.org/turtlebot_gazebo). Under the hood, this is based on Dijkstra's shortest path algorithm, which is a variant of the Uniform Cost Search algorithm. Using a path planning package like this permits a robot to avoid any encountered obstacles in its path by re-planning a new trajectory.
+The path planning and navigation is done using the [turtlebot_gazebo package](http://wiki.ros.org/turtlebot_gazebo). Under the hood, this is based on Dijkstra's shortest path algorithm, which is a variant of the Uniform Cost Search algorithm. Using a path planning package like this permits a robot to avoid any encountered obstacles in its path by re-planning a new trajectory. 
+
+This can be seen in the images below. What's going on in the _initialization_ image is the robot attempting to localize itself, as seen by the many green arrows. These each represent a pose estimation. In the _path_ image, you can see two new things - a path and a local map. The path is seen by the red and green line, where the end of the green line is the goal position for the robot. The local map is a visualization of what the robot is experiencing and how that relates to its position goal. Something to note is that, while hard to see, the green arrows have converged to right around the robot, indicating localization has been successful. 
+
+If you'd like to run this the `test_navigation.sh` shell script can found in the scripts directory. 
+
+| initialization | path |
+| :---: | :---: |
+| ![](images/rviz_amcl_init.png) | ![](images/rviz_path.png) |
 
 ### Virtual Objects
 
