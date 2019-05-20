@@ -50,5 +50,4 @@ The `home_service.sh` script can be used to run this.
 
 | navigation | pick up | dropped off |
 | :---: | :---: | :---: |
-| ![](images/gazebo_environment.png) | ![](images/rviz_no_map.png) |  ![](images/rviz_mapped.png) | 
-
+| ![](images/rviz_nav_to.png) | ![](images/rviz_nav_picked.png) |  ![](images/rviz_nav_dropped.png) | 
