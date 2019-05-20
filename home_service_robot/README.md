@@ -16,7 +16,9 @@ Mapping creates a "memory" for the robot to understand where it has been before 
 
 However, in this project it was demonstrated by manually driving a robot around an environment with some objects in it. The pictures below (from left to right) show the robot in its environment, the map before creation, and a map after driving around the obstacles a little bit. If you'd like to check this out you can run the `test_slam.sh` shell script found in the scripts directory. 
 
-| ![alt text](images/gazebo_environment.png) | ![alt text](images/rviz_no_map.png) |  ![alt text](images/rviz_mapped.png) | 
+| environment | no map | map |
+| :---: | :---: | :---: |
+| ![](images/gazebo_environment.png) | ![](images/rviz_no_map.png) |  ![](images/rviz_mapped.png) | 
 
 ### Path Planning
 
