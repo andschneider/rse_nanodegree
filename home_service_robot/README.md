@@ -44,3 +44,11 @@ This node subscribes to the robot's physical location to determine whether the r
 
 This node simply sends pick up and drop off locations to the robot to navigate to.
 
+The below images demonstrate this process. The first image on the left shows the robot navigating to the object (bright green square) at the pick up location. Next, the image in the middle shows that the robot has arrived, "picked up" the object, and received a new location to navigate to. Finally, the robot reaches the drop off location, and "drops off" the object. 
+
+The `home_service.sh` script can be used to run this. 
+
+| navigation | pick up | dropped off |
+| :---: | :---: | :---: |
+| ![](images/gazebo_environment.png) | ![](images/rviz_no_map.png) |  ![](images/rviz_mapped.png) | 
+
