@@ -48,6 +48,42 @@ The below images demonstrate this process. The first image on the left shows the
 
 The `home_service.sh` script can be used to run this. 
 
-| navigation | pick up | dropped off |
+| navigation | pick up | drop off |
 | :---: | :---: | :---: |
 | ![](images/rviz_nav_to.png) | ![](images/rviz_nav_picked.png) |  ![](images/rviz_nav_dropped.png) | 
+
+## Installation 
+
+In order to run all of the shell scripts you will need the following official ROS packages. For the __home service__ section the only needed package is number four, turtlebot gazebo.
+
+1. [gmapping](http://wiki.ros.org/gmapping)
+2. [turtlebot_teleop](http://wiki.ros.org/turtlebot_teleop)
+3. [turtlebot_rviz_launchers](http://wiki.ros.org/turtlebot_rviz_launchers)
+4. [turtlebot_gazebo](http://wiki.ros.org/turtlebot_gazebo)
+
+These packages should be cloned into your `catkin_ws/src` directory. This is also where you should have cloned this repo.
+
+Thus your `catkin_ws/src` should like: 
+```
+src
+|-- slam_gmapping
+    |-- gmapping
+    |-- ...
+|-- turtlebot
+    |-- turtlebot_teleop
+    |-- ...
+|-- turtlebot_interatctions
+    |-- turtlebot_rviz_launchers
+    |-- ...
+|-- turtlebot_simulator
+    |-- turtlebot_gazebo
+    |-- ...
+|-- add_markers
+    |-- ...
+|-- home_service_robot
+    |-- ...
+|-- pick_objects
+    |-- ...
+```
+
+Then build all the packages using `catkin_make` from the `catkin_ws` directory.
